@@ -27,14 +27,20 @@ __Цель задания:__
 | BR-SRV       | ens192   | 192.168.0.129| /27         | 192.168.0.130 |
 ---
 ## Выполнение задания 1.1
-Для начала прописал команду: `ip a`   
+Для начала прописал команду:
+```
+ip a
+```   
 Она для нужна, что бы узнать интерфейсы нашей машины
 
-Затем зашел в конфигурационный файл наших интерфейсов: `nano /etc/network/interfaces`  
-после чего изменил их согласно топологии и таблице адресации, как показано ниже:
+Затем зашел в конфигурационный файл наших интерфейсов:
+```
+nano /etc/network/interfaces
+```
+После чего изменил их согласно топологии и таблице адресации, как показано ниже:
 
 ```
- The primary network interface
+ #The primary network interface
 
  auto ens192  
  iface ens192 inet static  
@@ -53,11 +59,46 @@ __Цель задания:__
  netmask 255.255.255.252  
 ```
 
-Затем я сохранил конфигурацию: `ctrl+s`
+Затем я сохранил конфигурацию:  
+```
+ctrl+s
+```
 
-И вышел  из неё: `ctrl+x`
+И вышел  из неё: 
+```
+ctrl+x
+```
 
-После чего перезагрузил сетевой сервис: `systemctl restart networking`
+После чего перезагрузил сетевой сервис: 
+```
+systemctl restart networking
+```
+
+Снова пишу команду: `ip a`  
+Вот какой должен выйти итог:
+```
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:79:0f:40 brd ff:ff:ff:ff:ff:ff
+    altname enp11s0
+    inet 192.168.0.162/30 brd 192.168.0.163 scope global ens192
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe79:f40/64 scope link
+       valid_lft forever preferred_lft forever
+3: ens224: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:79:0f:4a brd ff:ff:ff:ff:ff:ff
+    altname enp19s0
+    inet 192.168.0.166/30 brd 192.168.0.167 scope global ens224
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe79:f4a/64 scope link
+       valid_lft forever preferred_lft forever
+4: ens256: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:79:0f:54 brd ff:ff:ff:ff:ff:ff
+    altname enp27s0
+    inet 10.12.13.88/24 brd 10.12.13.255 scope global ens256
+       valid_lft forever preferred_lft forever
+    inet6 fe80::20c:29ff:fe79:f54/64 scope link
+       valid_lft forever preferred_lft forever
+```
 
 **Всю туже работу я проделал и на других машинах**
 
