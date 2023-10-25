@@ -39,25 +39,25 @@ nano /etc/network/interfaces
 ```
 После чего изменил их согласно топологии и таблице адресации, как показано ниже:
 
-```
- #The primary network interface
 
- auto ens192  
- iface ens192 inet static  
- address 192.168.0.162  
- netmask 255.255.255.252  
+ >#The primary network interface
+ >
+ >auto ens192  
+ >iface ens192 inet static  
+ >address 192.168.0.162  
+ >netmask 255.255.255.252  
+ >
+ >auto ens256  
+ >iface ens256 inet static  
+ >address 10.12.13.88  
+ >gateway 10.10.200.200  
+ >netmask 255.255.255.0   
+ >
+ >auto ens224  
+ >iface ens224 inet static  
+ >address 192.168.0.166  
+ >netmask 255.255.255.252  
 
- auto ens256  
- iface ens256 inet static  
- address 10.12.13.88  
- gateway 10.10.200.200  
- netmask 255.255.255.0   
-
- auto ens224  
- iface ens224 inet static  
- address 192.168.0.166  
- netmask 255.255.255.252  
-```
 
 Затем я сохранил конфигурацию:  
 ```
