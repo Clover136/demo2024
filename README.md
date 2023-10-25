@@ -27,42 +27,37 @@ __Цель задания:__
 | BR-SRV       | ens192   | 192.168.0.129| /27         | 192.168.0.130 |
 ---
 ## Выполнение задания 1.1
-##### Для начала прописал команду:
-> ip a
-
+Для начала прописал команду: `ip a`   
 Она для нужна, что бы узнать интерфейсы нашей машины
 
-##### Затем зашел в конфигурационный файл наших интерфейсов
-> nano /etc/network/interfaces
+Затем зашел в конфигурационный файл наших интерфейсов: `nano /etc/network/interfaces`  
+после чего изменил их согласно топологии и таблице адресации, как показано ниже:
 
-После чего изменил их согласно топологии и таблице адресации, как показано ниже:
+```
+ The primary network interface
 
- #### The primary network interface
+ auto ens192  
+ iface ens192 inet static  
+ address 192.168.0.162  
+ netmask 255.255.255.252  
 
- > auto ens192  
- > iface ens192 inet static  
- > address 192.168.0.162  
- > netmask 255.255.255.252  
- > dns-nameservers 8.8.8.8  
+ auto ens256  
+ iface ens256 inet static  
+ address 10.12.13.88  
+ gateway 10.10.200.200  
+ netmask 255.255.255.0   
 
- > auto ens256  
- > iface ens256 inet static  
- > address 10.12.13.88  
- > gateway 10.10.200.200  
- > netmask 255.255.255.0  
- > dns-nameservers 8.8.8.8  
+ auto ens224  
+ iface ens224 inet static  
+ address 192.168.0.166  
+ netmask 255.255.255.252  
+```
 
- > auto ens224  
- > iface ens224 inet static  
- > address 192.168.0.166  
- > netmask 255.255.255.252  
- > dns-nameservers 8.8.8.8
+Затем я сохранил конфигурацию: `ctrl+s`
 
-Затем я сохранил конфигурацию
-> ctr+x
+И вышел  из неё: `ctrl+x`
 
-После чего перезагрузил сетевой сервис
-> systemctl restart networking
+После чего перезагрузил сетевой сервис: `systemctl restart networking`
 
 **Всю туже работу я проделал и на других машинах**
 
