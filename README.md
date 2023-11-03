@@ -152,7 +152,7 @@ nano /etc/frr/daemons
 ```
 И затем меняем значения:  
 Вместо `ospfd=no`  
-На `ospfd=yes`
+На `ospfd=yes`  
 Перезагружаем службу FRR:
 ```
 systemctl restart frr
