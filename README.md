@@ -101,6 +101,7 @@ systemctl restart networking
 ```
 
 **Всю ту же работу я проделал и на других машинах**
+
 ---
 
 
@@ -113,7 +114,7 @@ apt install iptables
 ```
 nano /etc/sysctl.conf
 ```
-После чего убрал убрал знак решетки `(#)`, с этой строки:  
+После чего раскомментировал эту строку:  
 ```
 #net.ipv4.ip_forward=1
 ```
@@ -122,7 +123,7 @@ nano /etc/sysctl.conf
 ```
 ip tables -A POSTROUTING -t nat -j MASQUERADE
 ```
-Затем создаем файл для автоматического запуска NAT псоле перезагрузки устройства:  
+Затем создаем файл для автоматического запуска NAT после перезагрузки устройства:  
 ```
 nano /etc/network/if-pre-up.d/nat
 ```
