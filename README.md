@@ -137,6 +137,7 @@ chmod +x /etc/network/if-pre-up.d/nat
 ```
 
 **Всю ту же работу выполняем на устройствах BR-R и HQ-R**  
+
 ---
 
 ## Выполнение задания 1.2
@@ -163,11 +164,13 @@ systemctl restart frr
 vtysh
 ```
 Затем настраиваем ospf, прописывая адреса ближайших сетевых устройств (BR-R, HQ-R):  
->conf t  
->router ospf  
->    net 192.168.0.160/30 area 0  
->    net 192.168.0.164/30 area 0  
->sh ip ospf neighbor  
+```
+conf t  
+router ospf  
+    net 192.168.0.160/30 area 0  
+    net 192.168.0.164/30 area 0  
+sh ip ospf neighbor  
+```
 
 **Далее настраиваем FRR на HQ-R и BR-R**  
 
@@ -177,3 +180,73 @@ vtysh
 
 ---
 
+## Выполнение задания 1.3
+__Цель задания:__  
+Настройка автоматического распределения IP-адресов на роутере HQ-R. У сервера должен быть зарезервирован адрес.  
+
+Для начала нужно скачать dhcp:
+```
+apt install isc-dhcp-server  
+```
+Затем нужно войти в конфиг dhcp:  
+```
+nano /etc/default/isc-dhcp-server  
+```
+И указать интерфейс в сторону внутренней сети:  
+` INTERFACESV4="ens192" `  
+
+Далее нужно настроить раздачу IP-адресов, для этого нужно зайти в:
+```
+nano /etc/dhcp/dhcpd.conf
+```
+И там вписать:  
+```
+default-lease-time 32400;
+subnet 192.168.0.0 netmask 255.255.255.0 {
+authoritative;
+range 192.168.0.3 192.168.0.125;
+option routers 192.168.0.2;
+}
+```
+После чего перезагрузить и включить службу DHCP:  
+```
+systemctl restart isc-dhcp-server
+```
+```
+systemctl enable isc-dhcp-server
+```
+---
+### Далее переходим на HQ-SRV  
+Там заходим в настройки интерфейсов:  
+```
+nano /etc/network/interfaces
+```
+И интерфейс `ens192` меняем с статического адреса на dhcp:
+```
+# The primary network interface
+auto ens192
+iface ens192 inet dhcp
+#address 192.168.0.1
+#netmask 255.255.255.128
+#gateway 192.168.0.2
+#dns-nameservers 8.8.8.8
+```
+После этого перезагружаем сетевой интерйес `HQ-SRV`:  
+```
+systemctl restart networking
+```
+И проверяем выданный IP-адрес с DHCP-сервера через:  
+```
+ip a
+```
+Вот что мы должны получить:  
+```
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:0c:29:9e:f2:c7 brd ff:ff:ff:ff:ff:ff
+    altname enp11s0
+    inet 192.168.0.3/24 brd 192.168.0.255 scope global dynamic ens192
+       valid_lft 30633sec preferred_lft 30633sec
+    inet6 fe80::20c:29ff:fe9e:f2c7/64 scope link
+       valid_lft forever preferred_lft forever
+```
+ ---
