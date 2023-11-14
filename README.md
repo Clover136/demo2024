@@ -192,8 +192,8 @@ apt install isc-dhcp-server
 ```
 nano /etc/default/isc-dhcp-server  
 ```
-И указать интерфейс в сторону внешней сети:  
-` INTERFACESV4="ens192" `  
+И указать интерфейс в сторону сети, куда будут идти IP-адреса:  
+` INTERFACESV4="ens224" `  
 
 Далее нужно настроить раздачу IP-адресов, для этого нужно зайти в:
 ```
@@ -201,10 +201,8 @@ nano /etc/dhcp/dhcpd.conf
 ```
 И там вписать:  
 ```
-default-lease-time 32400;
-subnet 192.168.0.0 netmask 255.255.255.0 {
-authoritative;
-range 192.168.0.3 192.168.0.125;
+subnet 192.168.0.0 netmask 255.255.255.128 {
+range 192.168.0.4 192.168.0.125;
 option routers 192.168.0.2;
 }
 ```
@@ -254,6 +252,11 @@ ip a
 ## Выполнение задания 1.4
 __Цель задания:__  
 Настройка локальных учетных записей на всех устройствах в соответствии с таблицей  
+|Учётная запись|Пароль|Примечание  |
+|--------------|----------|-------------|
+| Admin | P@ssw0rd | CLI HQ-SRV HQ-R |
+| Branch admin | P@ssw0rd | BR-SRV BR-R |
+| Network admin | P@ssw0rd | HQ-R BR-R BR-SRV |
 
 Для начала зашел на `HQ-SRV`, и прописал команду, добавляющая пользователя:  
 ```
@@ -275,13 +278,70 @@ Admin:x:1001:1001::/home/Admin:/bin/sh
 
 ---
 
+## Выполнение задания 1.5
+__Цель задания:__  
+Измерение пропускной способности сети между узлами HQ-R-ISP по средствам утилиты iperf3  
 
+Для начала установил утилиту на устройства `HQ-SRV` и `BR-SRV`, командой:  
+```
+apt-install iperf3
+```
+Затем на компьютере выступающем в роли сервера (`BR-SRV`) нужно прописать команду:  
+```
+iperf3 -s
+```
+(По стандарту принимающий сервер открыт по порту `5021`, если нужно принять данные по другому порту, следует написать)  
+```
+iperf3 -s -p 5022
+```
+В тот же момент на клиентской стороне (`HQ-SRV`), нужно написать IP-адрес принимающего сервера и его порт:  
+```
+iperf3 -c 192.168.0.129 -p 5022
+```
+Такой результат должен быть на `BR-SRV`:  
+```
+root@debian:~# iperf3 -s -p 5022
+-----------------------------------------------------------
+Server listening on 5022
+-----------------------------------------------------------
+Accepted connection from 192.168.0.130, port 40598
+[  5] local 192.168.0.129 port 5022 connected to 192.168.0.130 port 40604
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-1.00   sec   302 MBytes  2.54 Gbits/sec
+[  5]   1.00-2.00   sec   613 MBytes  5.14 Gbits/sec
+[  5]   2.00-3.00   sec   544 MBytes  4.57 Gbits/sec
+[  5]   3.00-4.00   sec   560 MBytes  4.70 Gbits/sec
+[  5]   4.00-5.00   sec   445 MBytes  3.73 Gbits/sec
+[  5]   5.00-6.00   sec   414 MBytes  3.47 Gbits/sec
+[  5]   6.00-7.00   sec   494 MBytes  4.15 Gbits/sec
+[  5]   7.00-8.00   sec   407 MBytes  3.41 Gbits/sec
+[  5]   8.00-9.00   sec   274 MBytes  2.29 Gbits/sec
+[  5]   9.00-10.00  sec   316 MBytes  2.65 Gbits/sec
+[  5]  10.00-10.05  sec  12.6 MBytes  2.08 Gbits/sec
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-10.05  sec  4.28 GBytes  3.66 Gbits/sec                  receiver
+```
+И такой же `HQ-SRV`:  
+```
+# root@debian:~# iperf3 -c 192.168.0.129 -p 5022
+Connecting to host 192.168.0.129, port 5022
+[  5] local 192.168.0.4 port 40604 connected to 192.168.0.129 port 5022
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-1.00   sec   324 MBytes  2.72 Gbits/sec  209   1.48 MBytes
+[  5]   1.00-2.00   sec   621 MBytes  5.21 Gbits/sec    1   1.39 MBytes
+[  5]   2.00-3.00   sec   542 MBytes  4.55 Gbits/sec    0   1.64 MBytes
+[  5]   3.00-4.00   sec   558 MBytes  4.68 Gbits/sec   14   1.41 MBytes
+[  5]   4.00-5.00   sec   445 MBytes  3.73 Gbits/sec   28   1.25 MBytes
+[  5]   5.00-6.00   sec   424 MBytes  3.55 Gbits/sec    0   1.47 MBytes
+[  5]   6.00-7.00   sec   484 MBytes  4.06 Gbits/sec   58   1.33 MBytes
+[  5]   7.00-8.00   sec   400 MBytes  3.36 Gbits/sec   14   1.14 MBytes
+[  5]   8.00-9.00   sec   274 MBytes  2.30 Gbits/sec    0   1.30 MBytes
+[  5]   9.00-10.00  sec   314 MBytes  2.63 Gbits/sec    3   1.04 MBytes
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-10.00  sec  4.28 GBytes  3.68 Gbits/sec  327             sender
+[  5]   0.00-10.05  sec  4.28 GBytes  3.66 Gbits
+```
 
-
-
-
-
-
-
-
-
+---
