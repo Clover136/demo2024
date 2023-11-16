@@ -121,7 +121,7 @@ nano /etc/sysctl.conf
 И проверил выполнение командой: `sysctl -p`  
 Затем прописываем команду:  
 ```
-ip tables -A POSTROUTING -t nat -j MASQUERADE
+iptables -A POSTROUTING -t nat -j MASQUERADE
 ```
 Затем создаем файл для автоматического запуска NAT после перезагрузки устройства:  
 ```
@@ -134,6 +134,10 @@ nano /etc/network/if-pre-up.d/nat
 В конце даем права для файла:  
 ```
 chmod +x /etc/network/if-pre-up.d/nat
+```
+По итогу перезагружаем машину:  
+```
+systemctl reboot
 ```
 
 **Всю ту же работу выполняем на устройствах BR-R и HQ-R**  
