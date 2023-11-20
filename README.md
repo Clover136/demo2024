@@ -175,6 +175,12 @@ router ospf
     net 192.168.0.164/30 area 0  
 sh ip ospf neighbor  
 ```
+Так же на устройстве включаем пересылку пакетов, командой:  
+```
+vtysh
+conf t
+    ip forwarding
+```
 
 **Далее настраиваем FRR на HQ-R и BR-R**  
 
@@ -246,7 +252,7 @@ ip a
 2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
     link/ether 00:0c:29:9e:f2:c7 brd ff:ff:ff:ff:ff:ff
     altname enp11s0
-    inet 192.168.0.3/24 brd 192.168.0.255 scope global dynamic ens192
+    inet 192.168.0.4/24 brd 192.168.0.255 scope global dynamic ens192
        valid_lft 30633sec preferred_lft 30633sec
     inet6 fe80::20c:29ff:fe9e:f2c7/64 scope link
        valid_lft forever preferred_lft forever
@@ -347,5 +353,51 @@ Connecting to host 192.168.0.129, port 5022
 [  5]   0.00-10.00  sec  4.28 GBytes  3.68 Gbits/sec  327             sender
 [  5]   0.00-10.05  sec  4.28 GBytes  3.66 Gbits
 ```
+
+---
+
+## Выполнение задания 1.6
+__Цель задания:__  
+Составление backup скриптов для сохранения конфигурации сетевых устройств, а именно HQ-R BR-R  
+
+Для начала на устройстве `HQ-R` установим rsync:  
+```
+apt install rsync -y
+```
+Далее создадим директорию для хранения наших бэкапов:  
+```
+mkdir /etc/networkbackup
+```
+После нужно зайти в раздел `crontab`, он нужен для выполнения задач по расписанию:  
+```
+crontab -e
+```
+Нам предложат выбрать текстовый редактор, выбираем `nano`, после чего вписываем туда скрипт:  
+```
+0 0 * * * rsync -avzh /etc/frr/frr.conf /etc/networkbackup
+```
+> В скрипте вместо нулей нужно прописать точное время старта скрипта, первый ноль отвечает за `минуты`, второй за `часы`  
+> Что бы узнать точное время нужно прописать команду:  
+> ```
+> date
+> ```
+Вот что по итогу получилось у меня:  
+```
+41 6 * * * rsync -avzh /etc/frr/frr.conf /etc/networkbackup
+```
+Что бы проверить скрипт, нужно зайти в наш созданный каталог:  
+```
+cd /etc/networkbackup
+```
+И прописать там:  
+```
+ls -a
+```
+Должно выйти это:
+```
+.  ..  frr.conf
+```
+
+### Всё тоже самое нужно проделать на `BR-R`
 
 ---
