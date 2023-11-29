@@ -49,7 +49,7 @@ vim /etc/net/ifaces/ens192/options
 BOOTPROTO=static
 TYPE=eth
 CONFIG_WIRELESS=no
-SYSTEMD_BOOTPROTO=dhcp4
+SYSTEMD_BOOTPROTO=static
 CONFIG_IPV4=yes
 DISABLED=no
 NM_CONTROLLED=no
