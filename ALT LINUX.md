@@ -76,6 +76,10 @@ service network restart
 ```
 ip a
 ```
+Если на интерфейсе показывается 2 IP-адреса то  нужно отключить NetworkManager командой:
+```
+systemctl disable network.service NetworkManager
+```
 ---
 ### Метод, если интерфейсы были добавлены после установки системы  
 Для начала создаем папку с нужным интерфейсом по этому пути:  
@@ -115,6 +119,9 @@ service network restart
 ```
 ip a
 ```
+Если на интерфейсе показывается 2 IP-адреса то  нужно отключить NetworkManager командой:
+```
+systemctl disable network.service NetworkManager
 ---
 ### Все тоже самое повторил на других интерфейсах
 
