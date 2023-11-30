@@ -122,6 +122,7 @@ ip a
 Если на интерфейсе показывается 2 IP-адреса то  нужно отключить NetworkManager командой:
 ```
 systemctl disable network.service NetworkManager
+```
 ---
 ### Все тоже самое повторил на других интерфейсах
 
