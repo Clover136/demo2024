@@ -128,6 +128,45 @@ systemctl disable network.service NetworkManager
 
 ---
 
+## Настройка NAT через Firewalld
+В настроках `options` у интерфейсов, должны быть такие значения:  
+```
+NM_CONTROLLED=no
+DISABLED=no
+```
+Далее нужно установить firewalld:  
+```
+apt-get -y install firewalld
+```
+После этого включить автозагрузку:  
+```
+systemctl enable --now firewalld
+```
+Добавляем правила к исходящим пакетам:
+```
+firewall-cmd --permanent --zone=public --add-interface=ens33
+```
+Добавляем правила к входящим пакетам:  
+```
+firewall-cmd --permanent --zone=trusted --add-interface=ens34
+```
+Включаем NAT:  
+```
+firewall-cmd --permanent --zone=public --add-masquerade
+```
+Сохранение правил:  
+```
+firewall-cmd --reload
+```
+
+**Все это я сделал на ISP,HQ-R,BR-R**
+
+---
+
+
+
+
+
 
 
 
