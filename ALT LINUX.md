@@ -158,6 +158,19 @@ firewall-cmd --permanent --zone=public --add-masquerade
 ```
 firewall-cmd --reload
 ```
+> Если Firewalld после перезагрузки машины не загружает введёные автоматически, а только после команды:
+> ```
+> firewall-cmd --reload
+> ```
+> То стоит проверить `options` у интерфейсов, и при необходимости выключить NetworkManager:
+> ```
+> NM_CONTROLLED=no
+> ```
+> Так же может помочь команда:
+> ```
+> systemctl disable network.service NetworkManager
+> ```
+
 
 **Все это я сделал на ISP,HQ-R,BR-R**
 
