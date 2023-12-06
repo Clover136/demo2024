@@ -158,7 +158,7 @@ firewall-cmd --permanent --zone=public --add-masquerade
 ```
 firewall-cmd --reload
 ```
-> Если Firewalld после перезагрузки машины не загружает введёные автоматически, а только после команды:
+> Если Firewalld после перезагрузки машины не загружает введёные команды автоматически, а только после команды:
 > ```
 > firewall-cmd --reload
 > ```
