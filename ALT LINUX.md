@@ -226,6 +226,10 @@ ip forwarding
 NM_CONTROLLED=no
 DISABLED=no
 ```
+Так же стоит отключить NetworkManager, если ранее это не было сделанно:  
+```
+systemctl disable network.service NetworkManager
+```
 Далее нужно установить firewalld:  
 ```
 apt-get -y install firewalld
@@ -236,12 +240,16 @@ systemctl enable --now firewalld
 ```
 Добавляем правила к исходящим пакетам:
 ```
-firewall-cmd --permanent --zone=public --add-interface=ens33
+firewall-cmd --permanent --zone=public --add-interface=ens???
 ```
+> zone=public - интерфейс смотрящий в сторону Интернета  
+
 Добавляем правила к входящим пакетам:  
 ```
-firewall-cmd --permanent --zone=trusted --add-interface=ens34
+firewall-cmd --permanent --zone=trusted --add-interface=ens???
 ```
+> zone=trusted - доверенные адреса внутренней локальной сети  
+
 Включаем NAT:  
 ```
 firewall-cmd --permanent --zone=public --add-masquerade
@@ -250,6 +258,35 @@ firewall-cmd --permanent --zone=public --add-masquerade
 ```
 firewall-cmd --reload
 ```
+
+### Дальнейшая настройка firewalld с ISP
+Далее нужно включить пересылку пакетов с BR-R на HQ-R и наоборот:  
+```
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i ens224 -o ens256 -j ACCEPT  
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i ens256 -o ens224 -j ACCEPT  
+```
+Затем открыаем порты OSPF:  
+```
+firewall-cmd --permanent --zone=trusted --add-port=89/tcp  
+firewall-cmd --permanent --zone=trusted --add-port=89/udp  
+```
+### Настройка firewalld на HQ-R, BR-R
+HQ-R и BR-R Включаем пересылку между интерфейсом смотрящим в ISP и туннелем:  
+```
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i ens224 -o tun1 -j ACCEPT  
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i tun1 -o ens224 -j ACCEPT
+```
+Открываем порты OSPF на HQ-R и BR-R:  
+```
+firewall-cmd --permanent --zone=trusted --add-port=89/tcp  
+firewall-cmd --permanent --zone=trusted --add-port=89/udp  
+```
+А так же нужно не забыть добавить туннель в зону `trusted` на HQ-R и BR-R:  
+```
+firewall-cmd --permanent --zone=trusted --add-interface=tun1
+```
+**На этом настройка закончена**
+
 > Если Firewalld после перезагрузки машины не загружает введёные команды автоматически, а только после команды:
 > ```
 > firewall-cmd --reload
@@ -262,9 +299,6 @@ firewall-cmd --reload
 > ```
 > systemctl disable network.service NetworkManager
 > ```
-
-
-**Все это я сделал на ISP,HQ-R,BR-R**
 
 ---
 
