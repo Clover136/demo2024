@@ -128,6 +128,98 @@ systemctl disable network.service NetworkManager
 
 ---
 
+## Настройка ТУННЕЛЯ между HQ-R и BR-R
+Для начала нужно создать директорию для туннельного интерфейса:  
+```
+mkdir /etc/net/ifaces/tun1
+```
+Затем заполнить создать и заполнить файл `options` у туннеля:  
+```
+vim /etc/net/ifaces/tun1/options
+```
+```
+TYPE=iptun
+TUNTYPE=gre
+TUNLOCAL=xxx.xxx.xxx.xxx
+TUNREMOTE=xxx.xxx.xxx.xxx
+TUNOPTIONS='ttl 64'
+HOST=ens???
+```
+> в `TUNLOCAL` нужно вписать адрес смотрящий на ISP  
+> в `TUNREMOTE` нужно вписать адрес устйства, к которому идет туннель  
+> в `HOST` нужног вписать интерфейс смотрящий на ISP  
+
+Дальше добавляем IP-адрес на туннель:
+```
+echo xxx.xxx.xxx.xxx/xx > /etc/net/ifaces/tun1/ipv4address
+```
+В конце перезагружаем службу network:  
+```
+systemctl restart network
+```
+**Все тоже самое делаем и на другом устройстве туннеля**
+
+---
+
+## Настройка динамической маршрутизации FRR
+Для начала установим пакеты:  
+```
+apt-get update
+```
+Затем установим и сам FRR:  
+```
+apt-get -y install frr
+```
+И включим автозагрузку FRR:  
+```
+systemctl enable --now frr
+```
+Далее включаем демона:  
+```
+nano /etc/frr/daemons
+```
+И меняем `ospfd=no`  
+На `ospfd =yes`  
+
+Затем заходим в среду роутера:  
+```
+vtysh
+```
+И прописываем:  
+```
+conf t
+    router ospf
+    net 192.168.0.160/30 area 0
+    net 192.168.0.164/30 area 0
+    exit
+ip forwarding
+do w
+```    
+Иногда настройки vtysh слетают, для этого заходим в:
+```
+nano /etc/frr/frr.conf
+```
+И добавляем после `ipv6 forwarding` такую строчку:
+```
+ip forwarding
+```
+
+**Все тоже самое проделываю на HQ-R и BR-R**
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Настройка NAT через Firewalld
 В настроках `options` у интерфейсов, должны быть такие значения:  
 ```
