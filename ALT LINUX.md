@@ -265,7 +265,7 @@ firewall-cmd --reload
 firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i ens224 -o ens256 -j ACCEPT  
 firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -i ens256 -o ens224 -j ACCEPT  
 ```
-Затем открыаем порты OSPF:  
+Затем открывем порты OSPF:  
 ```
 firewall-cmd --permanent --zone=trusted --add-port=89/tcp  
 firewall-cmd --permanent --zone=trusted --add-port=89/udp  
